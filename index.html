@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOOL-RAFFA</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+  <link rel="icon" type="image/x-icon" href="img/favicon.png">
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <div style="text-align: center;">
+        <img src="img/logo-tool-raffa.png" alt="TOOL-RAFFA Logo" style="max-height: 70px; width: auto;">
+      </div>      
+    </header>
+  
+    <div id="sceltaIniziale">
+      
+      <div class="scelta-container">
+        <h2>Seleziona il documento da generare</h2>
+        <button class="form-button" onclick="mostraForm('formDelibera')">Delibera / Carico</button>
+        <button class="form-button" onclick="mostraForm('formCaricoRC')">Carico RC</button>
+        <button class="form-button" onclick="mostraForm('formCertificato')">Certificato</button>
+      </div>
+    </div>
+
+    
+<!-- FORM DELIBERA + CARICO -->
+  <div id="formDelibera" style="display: none;">
+      <form id="calcoloForm" class="form">
+
+        <div class="input-box">
+          <label for="nomeSocieta">Nome Società:</label>
+          <input type="text" id="nomeSocieta" name="nomeSocieta" required>
+        </div>
+
+        <div class="input-box">
+          <label for="pivaSocieta">Partita IVA Società:</label>
+          <input type="text" id="pivaSocieta" name="pivaSocieta" required>
+        </div>
+
+        <div class="input-box duo-fields">
+          <div>
+            <label for="cap">CAP:</label>
+            <input type="text" id="cap" name="cap" required>
+          </div>
+          <div>
+            <label for="citta">Città:</label>
+            <input type="text" id="citta" name="citta" required>
+          </div>
+          <div>
+            <label for="provincia">Provincia:</label>
+            <input type="text" id="provincia" name="provincia" required>
+          </div>
+        </div>
+
+        <div class="input-box">
+          <label for="indirizzoSocieta">Indirizzo Società:</label>
+          <input type="text" id="indirizzoSocieta" name="indirizzoSocieta" required>
+        </div>
+        
+        <div class="input-box">
+          <label for="numCarico">Numero Carico:</label>
+          <input type="text" id="numCarico" name="numCarico" required>
+        </div>
+        <div class="input-box">
+          <label for="tipoPolizza">Tipologia Polizza:</label>
+          <select id="tipoPolizza" name="tipoPolizza" class="select-box" onchange="toggleModalitaCalcolo(); toggleDecorrenza();" required>
+            <option value="">-- Seleziona --</option>
+            <option value="nuovaAdesione">NUOVA ADESIONE</option>
+            <option value="Rinnovo">RINNOVO</option>
+          </select>
+        </div>
+
+        <div class="input-box">
+          <label for="decorrenza">Decorrenza:</label>
+          <input type="date" id="decorrenza" name="decorrenza" required>
+        </div>
+        <div class="input-box">
+          <label for="scadenza">Scadenza:</label>
+          <input type="date" id="scadenza" name="scadenza" required>
+        </div> 
+
+        <div class="input-box">
+          <label for="modalitaCalcolo">Modalità di Calcolo:</label>
+          <select id="modalitaCalcolo" name="modalitaCalcolo" class="select-box" onchange="toggleModalitaCalcolo()" required>
+            <option value="">-- Seleziona --</option>
+            <option value="rating">Prezzo da Rating</option>
+            <option value="manuale">Prezzo Manuale</option>
+          </select>
+        </div>
+        <div id="prezzoManuale" style="display: none;">
+          <div class="input-box">
+            <label for="fondoGaranziaManuale">Fondo di Garanzia (€):</label>
+            <input type="number" id="fondoGaranziaManuale" name="fondoGaranziaManuale" min="0" step="0.01">
+          </div>
+          <div class="input-box">
+            <label for="gestioneConsorzioManuale">Gestione Consorzio (€):</label>
+            <input type="number" id="gestioneConsorzioManuale" name="gestioneConsorzioManuale" min="0" step="0.01">
+          </div>
+          <div class="input-box">
+            <label for="iscrizioneConsorzioManuale">Iscrizione Consorzio (€):</label>
+            <input type="number" id="iscrizioneConsorzioManuale" name="iscrizioneConsorzioManuale" min="0" step="0.01">
+          </div>
+        </div>
+
+        <div id="sezioneRating" style="display: none;">
+        <div class="input-box">
+          <label for="rating">Seleziona il Rating:</label>
+          <select id="rating" name="rating" class="select-box" required>
+            <option value="">-- Seleziona --</option>
+            <option value="A">Rating A</option>
+            <option value="B">Rating B</option>
+            <option value="C">Rating C</option>
+          </select>
+        </div>
+        <div class="input-box">
+          <label for="fascia">Seleziona la Fascia di Fatturato:</label>
+          <select id="fascia" name="fascia" class="select-box" onchange="toggleFatturatoInput()" required>
+            <option value="">-- Seleziona --</option>
+            <option value="1">1) Fino a €300.000</option>
+            <option value="2">2) €300.001 - €400.000</option>
+            <option value="3">3) €400.001 - €500.000</option>
+            <option value="4">4) €500.001 - €700.000</option>
+            <option value="5">5) €700.001 - €900.000</option>
+            <option value="6">6) €900.001 - €1.000.000</option>
+            <option value="7">7) €1.000.001 - €1.500.000</option>
+            <option value="8">8) €1.500.001 - €2.250.000</option>
+            <option value="9">9) €2.250.001 - €3.000.000</option>
+            <option value="10">10) €3.000.001 - €3.500.000</option>
+            <option value="11">11) €3.500.001 - €5.000.000</option>
+            <option value="12">12) Oltre €5.000.000</option>
+          </select>
+        </div>
+        </div>
+        <div class="input-box" id="fatturatoInput" style="display: none;">
+          <label for="fatturato">Inserisci il fatturato (in €):</label>
+          <input type="number" id="fatturato" name="fatturato" min="5000000" step="1">
+        </div>
+        <button type="button" class="form-button" onclick="calcolaQuote()">Calcola</button>
+      </form>
+
+      <div id="result" class="result" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid #ddd; background: #E9F0FF; border-radius: 6px;">
+        <h2>Risultato:</h2>
+        <p id="sommaQuote"></p>
+        <p id="spiegazioneCalcolo"></p>
+        <button type="button" class="form-button" onclick="scaricaDelibera()">Scarica Delibera</button>
+        <button type="button" class="form-button" onclick="scaricaCarico()">Scarica Carico</button>
+      </div>
+
+    </div>
+
+  <!-- FORM CARICO RC -->
+  <div id="formCaricoRC" style="display:none;">
+    <form id="calcoloForm" class="form">
+
+      <div class="input-box">
+        <label for="nomeSocietaRC">Nome Società:</label>
+        <input type="text" id="nomeSocietaRC" name="nomeSocietaRC" required>
+      </div>
+  
+      <div class="input-box">
+        <label for="pivaSocietaRC">Partita IVA Società:</label>
+        <input type="text" id="pivaSocietaRC" name="pivaSocietaRC" required>
+      </div>
+  
+      <div class="input-box duo-fields">
+        <div>
+          <label for="capRC">CAP:</label>
+          <input type="text" id="capRC" name="capRC" required>
+        </div>
+        <div>
+          <label for="cittaRC">Città:</label>
+          <input type="text" id="cittaRC" name="cittaRC" required>
+        </div>
+        <div>
+          <label for="provinciaRC">Provincia:</label>
+          <input type="text" id="provinciaRC" name="provinciaRC" required>
+        </div>
+      </div>
+  
+      <div class="input-box">
+        <label for="indirizzoSocietaRC">Indirizzo Società:</label>
+        <input type="text" id="indirizzoSocietaRC" name="indirizzoSocietaRC" required>
+      </div>
+      
+      <div class="input-box">
+        <label for="numCaricoRC">Numero Carico:</label>
+        <input type="text" id="numCaricoRC" name="numCaricoRC" required>
+      </div>
+  
+      <div class="input-box">
+        <label for="decorrenzaRC">Decorrenza:</label>
+        <input type="date" id="decorrenzaRC" name="decorrenzaRC" required>
+      </div>
+      <div class="input-box">
+        <label for="scadenzaRC">Scadenza:</label>
+        <input type="date" id="scadenzaRC" name="scadenzaRC" required>
+      </div> 
+  
+      <div class="input-box">
+        <label for="importoRC">Importo RC (€):</label>
+        <input type="number" id="importoRC" name="importoRC" min="0" step="0.01" required>
+      </div>
+
+      <button type="button" class="form-button" onclick="scaricaCaricoRC()">Scarica Carico RC</button>
+
+    </form>
+  
+  </div>
+
+  
+
+  <button id="btnTorna" class="form-button" style="display:none;" onclick="tornaAllaScelta()">← Torna alla scelta iniziale</button>
+  </div>
+
+  
+
+  <script>
+function mostraForm(idForm) {
+  document.getElementById("sceltaIniziale").style.display = "none";
+  document.getElementById("btnTorna").style.display = "block";
+
+  const formIds = ["formDelibera", "formCaricoRC", "formCertificato"];
+  formIds.forEach(id => {
+    document.getElementById(id).style.display = (id === idForm) ? "block" : "none";
+  });
+}
+
+function tornaAllaScelta() {
+  document.getElementById("sceltaIniziale").style.display = "block";
+  document.getElementById("btnTorna").style.display = "none";
+
+  const formIds = ["formDelibera", "formCaricoRC", "formCertificato"];
+  formIds.forEach(id => {
+    document.getElementById(id).style.display = "none";
+  });
+
+  document.getElementById("result").style.display = "none"; // nasconde eventuale risultato vecchio
+}
+
+    const quoteData = {
+      A: {
+        1: { fondoGaranzia: 190, gestioneConsorzio: 30, iscrizioneConsorzio: 50 },
+        2: { fondoGaranzia: 260, gestioneConsorzio: 45, iscrizioneConsorzio: 50 },
+        3: { fondoGaranzia: 340, gestioneConsorzio: 60, iscrizioneConsorzio: 50 },
+        4: { fondoGaranzia: 450, gestioneConsorzio: 80, iscrizioneConsorzio: 50 },
+        5: { fondoGaranzia: 565, gestioneConsorzio: 100, iscrizioneConsorzio: 50 },
+        6: { fondoGaranzia: 640, gestioneConsorzio: 115, iscrizioneConsorzio: 50 },
+        7: { fondoGaranzia: 715, gestioneConsorzio: 120, iscrizioneConsorzio: 50 },
+        8: { fondoGaranzia: 900, gestioneConsorzio: 150, iscrizioneConsorzio: 50 },
+        9: { fondoGaranzia: 1100, gestioneConsorzio: 190, iscrizioneConsorzio: 50 },
+        10: { fondoGaranzia: 1200, gestioneConsorzio: 200, iscrizioneConsorzio: 50 },
+        11: { fondoGaranzia: 1390, gestioneConsorzio: 230, iscrizioneConsorzio: 50 },
+      },
+      B: {
+        1: { fondoGaranzia: 209, gestioneConsorzio: 30, iscrizioneConsorzio: 50 },
+        2: { fondoGaranzia: 286, gestioneConsorzio: 45, iscrizioneConsorzio: 50 },
+        3: { fondoGaranzia: 374, gestioneConsorzio: 60, iscrizioneConsorzio: 50 },
+        4: { fondoGaranzia: 495, gestioneConsorzio: 80, iscrizioneConsorzio: 50 },
+        5: { fondoGaranzia: 621.50, gestioneConsorzio: 100, iscrizioneConsorzio: 50 },
+        6: { fondoGaranzia: 704, gestioneConsorzio: 115, iscrizioneConsorzio: 50 },
+        7: { fondoGaranzia: 786, gestioneConsorzio: 120, iscrizioneConsorzio: 50 },
+        8: { fondoGaranzia: 990, gestioneConsorzio: 150, iscrizioneConsorzio: 50 },
+        9: { fondoGaranzia: 1210, gestioneConsorzio: 190, iscrizioneConsorzio: 50 },
+        10: { fondoGaranzia: 1320, gestioneConsorzio: 200, iscrizioneConsorzio: 50 },
+        11: { fondoGaranzia: 1529, gestioneConsorzio: 230, iscrizioneConsorzio: 50 },
+      },
+      C: {
+        1: { fondoGaranzia: 219.45, gestioneConsorzio: 30, iscrizioneConsorzio: 50 },
+        2: { fondoGaranzia: 304.59, gestioneConsorzio: 45, iscrizioneConsorzio: 50 },
+        3: { fondoGaranzia: 389.71, gestioneConsorzio: 60, iscrizioneConsorzio: 50 },
+        4: { fondoGaranzia: 519.75, gestioneConsorzio: 80, iscrizioneConsorzio: 50 },
+        5: { fondoGaranzia: 649.47, gestioneConsorzio: 100, iscrizioneConsorzio: 50 },
+        6: { fondoGaranzia: 734.27, gestioneConsorzio: 115, iscrizioneConsorzio: 50 },
+        7: { fondoGaranzia: 829.76, gestioneConsorzio: 120, iscrizioneConsorzio: 50 },
+        8: { fondoGaranzia: 1049.40, gestioneConsorzio: 150, iscrizioneConsorzio: 50 },
+        9: { fondoGaranzia: 1259.61, gestioneConsorzio: 190, iscrizioneConsorzio: 50 },
+        10: { fondoGaranzia: 1399.20, gestioneConsorzio: 200, iscrizioneConsorzio: 50 },
+        11: { fondoGaranzia: 1619.21, gestioneConsorzio: 230, iscrizioneConsorzio: 50 },
+      },
+    };
+
+    const percentuali = {
+      A: { fondoGaranzia: 0.0008, gestioneConsorzio: 0.1, iscrizioneConsorzio: 50 },
+      B: { fondoGaranzia: 0.0015, gestioneConsorzio: 0.1, iscrizioneConsorzio: 50 },
+      C: { fondoGaranzia: 0.0023, gestioneConsorzio: 0.1, iscrizioneConsorzio: 50 },
+    };
+
+    let calcoloRisultato = {};
+
+    function toggleFatturatoInput() {
+      const fascia = document.getElementById('fascia').value;
+      const fatturatoInput = document.getElementById('fatturatoInput');
+      if (fascia === "12") {
+        fatturatoInput.style.display = 'block';
+      } else {
+        fatturatoInput.style.display = 'none';
+        document.getElementById('fatturato').value = '';
+      }
+    }
+
+    function getDataCorrente() {
+    const oggi = new Date();
+    const giorno = String(oggi.getDate()).padStart(2, '0');
+    const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+    const anno = oggi.getFullYear(); // Anno completo
+    return `${giorno}.${mese}.${anno}`;
+    }
+
+    function toggleModalitaCalcolo() {
+    const modalita = document.getElementById('modalitaCalcolo').value;
+    const prezzoManualeDiv = document.getElementById('prezzoManuale');
+    const sezioneRating = document.getElementById('sezioneRating');
+
+    if (modalita === 'manuale') {
+      prezzoManualeDiv.style.display = 'block';
+      sezioneRating.style.display = 'none';
+    } else if (modalita === 'rating') {
+      prezzoManualeDiv.style.display = 'none';
+      sezioneRating.style.display = 'block';
+    } else {
+      prezzoManualeDiv.style.display = 'none';
+      sezioneRating.style.display = 'none';
+    }
+  }
+
+  function formattaNumeroItaliano(numero) {
+    numero = parseFloat(numero);  // Converte in numero (se possibile)
+    if (isNaN(numero)) return "0,00";  // Se non è un numero valido, restituisci "0,00"
+    return numero.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function calcolaQuote() {
+    console.log("Funzione calcolaQuote() avviata"); // 👀 Debug
+    const modalita = document.getElementById('modalitaCalcolo').value;
+    console.log("Modalità selezionata:", modalita); // 👀 Debug
+    let fondoGaranzia = 0, gestioneConsorzio = 0, iscrizioneConsorzio = 0;
+
+    if (modalita === 'manuale') {
+        fondoGaranzia = parseFloat(document.getElementById('fondoGaranziaManuale').value) || 0;
+        gestioneConsorzio = parseFloat(document.getElementById('gestioneConsorzioManuale').value) || 0;
+        iscrizioneConsorzio = parseFloat(document.getElementById('iscrizioneConsorzioManuale').value) || 0;
+    } else if (modalita === 'rating') {
+        const rating = document.getElementById('rating').value;
+        const fascia = document.getElementById('fascia').value;
+        const fatturato = parseFloat(document.getElementById('fatturato').value) || 0;
+        console.log("Rating:", rating, "Fascia:", fascia, "Fatturato:", fatturato); // 👀 Debug
+
+        if (fascia === "12") {
+            const datiPercentuali = percentuali[rating];
+            fondoGaranzia = fatturato * datiPercentuali.fondoGaranzia;
+            gestioneConsorzio = fondoGaranzia * datiPercentuali.gestioneConsorzio;
+        } else {
+            const datiFascia = quoteData[rating][fascia];
+            fondoGaranzia = datiFascia.fondoGaranzia;
+            gestioneConsorzio = datiFascia.gestioneConsorzio;
+            iscrizioneConsorzio = datiFascia.iscrizioneConsorzio;
+        }
+    } else {
+        alert('Seleziona una modalità di calcolo!');
+        return;
+    }
+
+    const somma = fondoGaranzia + gestioneConsorzio + iscrizioneConsorzio;
+    console.log("Calcolo completato:", { somma, fondoGaranzia, gestioneConsorzio, iscrizioneConsorzio }); // 👀 Debug
+
+    calcoloRisultato = { somma, fondoGaranzia, gestioneConsorzio, iscrizioneConsorzio };
+
+    document.getElementById('sommaQuote').innerText = `Totale: €${formattaNumeroItaliano(somma)}`;
+    document.getElementById('spiegazioneCalcolo').innerText = `
+        Fondo di Garanzia: €${formattaNumeroItaliano(fondoGaranzia)}
+        Gestione Consorzio: €${formattaNumeroItaliano(gestioneConsorzio)}
+        Iscrizione Consorzio: €${formattaNumeroItaliano(iscrizioneConsorzio)}
+    `;
+    document.getElementById('result').style.display = 'block';
+}
+
+
+    function scaricaDelibera() {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+
+
+      const nomeSocieta = document.getElementById('nomeSocieta').value.toUpperCase();
+      const indirizzoSocieta = document.getElementById('indirizzoSocieta').value;
+      const cap = document.getElementById('cap').value;
+      const citta = document.getElementById('citta').value;
+      const pivaSocieta = document.getElementById('pivaSocieta').value;
+      const { fondoGaranzia, gestioneConsorzio, iscrizioneConsorzio, somma } = calcoloRisultato;
+      const totaleInLettere = convertiInParole(somma);
+
+      // Aggiunta logo
+      const logoPath = "img/logodelibera.jpg";
+      const logoWidth = 60; // Larghezza del logo
+      const logoHeight = 20; // Altezza del logo
+      const logoX = (pdf.internal.pageSize.getWidth() - logoWidth) / 2; // Centrare il logo orizzontalmente
+      const logoY = 8; // Distanza dalla parte superiore
+      pdf.addImage(logoPath, "JPEG", logoX, logoY, logoWidth, logoHeight);
+
+      pdf.setFontSize(16);
+      pdf.setFont("Helvetica", "bold");
+      const title = "FONDO CONSORTILE DI GARANZIA";
+      const pageWidth = pdf.internal.pageSize.getWidth(); // Larghezza della pagina
+      const textWidth = pdf.getTextWidth(title); // Larghezza del testo
+      const centerX = (pageWidth - textWidth) / 2; // Calcolo della posizione centrata
+
+      pdf.text(title, centerX, 40);
+
+      pdf.setFontSize(10);
+      pdf.setFont("Helvetica", "normal");
+      pdf.text("Spettabile", 125, 55);
+      pdf.text(nomeSocieta, 125, 60);
+      pdf.text(indirizzoSocieta, 125, 65);
+      pdf.text(`${cap} ${citta}`, 125, 70);
+      pdf.text(`P IVA ${pivaSocieta}`, 125, 75);
+      
+      pdf.text(`Milano, ${getDataCorrente()}`, 10, 92);
+      pdf.setFont("Helvetica", "bold");
+      pdf.text("OGGETTO: VOSTRA RICHIESTA", 10, 106);
+
+      pdf.setFont("Helvetica", "normal");
+      pdf.text(`Spettabile ${nomeSocieta},`, 10, 120);
+      const corpoTesto = `in riferimento alla Vostra richiesta di iscrizione al Consorzio interno VACANZE GARANTITE® come Socio Consorziato, e di adesione al Fondo di garanzia consortile VACANZE GARANTITE® sulla base di quanto disposto dal DECRETO LEGISLATIVO 21 maggio 2018 , n. 62 - Attuazione della direttiva (UE) 2015/2302 del Parlamento europeo e del Consiglio, del 25 novembre 2015, relativa ai pacchetti turistici e ai servizi turistici collegati, che modifica il regolamento (CE) n. 2006/2004 e la direttiva 2011/83/UE del Parlamento europeo e del Consiglio e che abroga la direttiva 90/314/CEE del Consiglio. – Sezione V – Protezione in caso di insolvenza o fallimento - Art. 47 comma 3, Vi comunichiamo che la Vostra domanda è stata accettata.`;
+      pdf.text(corpoTesto, 10, 127, { maxWidth: 190, align: "justify"});
+
+      pdf.setFont("Helvetica", "normal");
+      pdf.text("In base ai dati da Voi forniti e trasmessi mediante il modulo di adesione, le quote annuali da corrispondere sono le seguenti:", 10, 160, { maxWidth: 190, align: "justify"});
+
+      pdf.setFont("Helvetica", "normal");
+
+// Definizione delle colonne
+const col1X = 10;   // Posizione della descrizione
+const col2X = 140;  // Posizione "Euro"
+const col3X = 160;  // Posizione importo
+
+// Dati delle quote
+const quote = [
+  ["Quota annuale di iscrizione al consorzio", formattaNumeroItaliano(iscrizioneConsorzio)],
+  ["Quota annuale del Fondo di Garanzia", 	formattaNumeroItaliano(fondoGaranzia)],
+  ["Quota annuale di Gestione (IVA compresa)", `${formattaNumeroItaliano(gestioneConsorzio)}`]
+];
+
+// Stampa le quote con allineamento
+let startY = 173;
+quote.forEach(([descrizione, importo]) => {
+  pdf.text(descrizione, col1X, startY);
+  pdf.text("Euro", col2X, startY);
+  // Determina la posizione per allineare a destra
+const col3Width = 25; // Larghezza riservata ai prezzi
+const prezzoX = col3X + col3Width - pdf.getTextWidth(importo);
+
+pdf.text(importo, prezzoX, startY);
+  startY += 5;  // Spaziatura tra le righe
+});
+
+      pdf.setFont("Helvetica", "normal");
+      pdf.text("Tutte le quote indicate sono obbligatorie e il mancato pagamento di anche una sola quota, non permetterà il rilascio del Certificato di garanzia del Fondo consortile VACANZE GARANTITE®", 10, 192, { maxWidth: 190, align: "justify" });
+      
+      pdf.text(`Al fine dell’iscrizione al consorzio e del rilascio del certificato di garanzia del Fondo consortile VACANZE GARANTITE® il versamento della somma complessiva di Euro ${formattaNumeroItaliano(somma)} (${totaleInLettere}) deve essere effettuato entro 5 (cinque) giorni dal ricevimento della presente mediante bonifico bancario alle coordinate bancarie a Voi indicate.`, 10, 202, { maxWidth: 190, align: "justify"  });
+
+      pdf.setFont("Helvetica", "normal");
+      pdf.text("Vi ringraziamo per la preferenza accordataci e Vi diamo il benvenuto nel Consorzio.", 10, 220);
+      pdf.text("Cordiali saluti,", 10, 230);
+      pdf.text("Consorzio VACANZE GARANTITE®", 110, 240);
+
+      pdf.setFontSize(8);
+      pdf.setFont("Helvetica", "normal");
+      const footerLines = [
+  "Consorzio Vacanze Garantite",
+  "Via Enrico Cosenz 54/B – 20158 Milano - P.Iva 11619990960",
+  "info@vacanzegarantite.it - www.vacanzegarantite.it"
+];
+
+const footerPageWidth = pdf.internal.pageSize.getWidth(); // Larghezza della pagina
+const footerY = pdf.internal.pageSize.getHeight() - 20; // Posizione verticale per il footer
+
+// Colore grigio per le prime due righe
+pdf.setTextColor("#808080"); 
+footerLines.slice(0, 2).forEach((line, index) => {
+  const lineWidth = pdf.getTextWidth(line); // Calcola la larghezza di ogni riga
+  const lineCenterX = (footerPageWidth - lineWidth) / 2; // Posizione orizzontale centrata
+  pdf.text(line, lineCenterX, footerY + index * 5); // Ogni riga separata da 5 unità verticalmente
+});
+
+// Colore nero per l'ultima riga e aggiunta di link
+pdf.setTextColor("#0000FF"); 
+const lastLine = footerLines[2];
+const lastLineWidth = pdf.getTextWidth(lastLine);
+const lastLineCenterX = (footerPageWidth - lastLineWidth) / 2;
+const lastLineY = footerY + 2 * 5; // Posizione della terza riga
+
+pdf.text(lastLine, lastLineCenterX, lastLineY);
+
+// Aggiunta di link per "info@vacanzegarantite.it" e "www.vacanzegarantite.it"
+const emailLink = "info@vacanzegarantite.it";
+const webLink = "www.vacanzegarantite.it";
+
+const emailWidth = pdf.getTextWidth(emailLink); // Larghezza del testo del link email
+const emailX = lastLineCenterX; // Posizione X dell'email (centrata con il resto del testo)
+const webX = lastLineCenterX + emailWidth + pdf.getTextWidth(" - "); // Posizione X del sito web
+
+pdf.link(emailX, lastLineY - 2, emailWidth, 5, { url: `mailto:${emailLink}` });
+pdf.link(webX, lastLineY - 2, pdf.getTextWidth(webLink), 5, { url: `https://${webLink}` });
+
+
+      // Generazione del nome del file
+      const dataCorrente = getDataCorrente(); // Data nel formato DD.MM.YYYY
+      const nomeFile = `Lettera Delibera ${nomeSocieta} ${dataCorrente.replace(/\./g, "-")}.pdf`;
+
+      pdf.save(nomeFile);
+    }
+
+    function scaricaCarico() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  // Recupera i dati dal form
+  const nomeSocieta = document.getElementById('nomeSocieta').value.toUpperCase();
+  const indirizzoSocieta = document.getElementById('indirizzoSocieta').value;
+  const cap = document.getElementById('cap').value;
+  const citta = document.getElementById('citta').value;
+  const provincia = document.getElementById('provincia').value;
+  const pivaSocieta = document.getElementById('pivaSocieta').value;
+  const numCarico = document.getElementById('numCarico').value;
+  const decorrenza = formattaDataItaliana(document.getElementById('decorrenza').value);
+  const scadenza = formattaDataItaliana(document.getElementById('scadenza').value);
+  const tipoPolizza = document.getElementById('tipoPolizza').value;
+  const somma = calcoloRisultato.somma.toFixed(2);
+  
+  function getDataCorrente() {
+    const oggi = new Date();
+    const giorno = String(oggi.getDate()).padStart(2, '0');
+    const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+    const anno = oggi.getFullYear(); // Anno completo
+    return `${giorno}.${mese}.${anno}`;
+}
+
+// 📌 INSERISCI QUI LA FUNZIONE formattaDataItaliana()
+function formattaDataItaliana(dataInput) {
+  if (!dataInput) return "";
+  const tipoPolizza = document.getElementById('tipoPolizza').value;
+
+  const parts = dataInput.split('-');
+  if (parts.length === 3) {
+    // Formato YYYY-MM-DD
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  } else if (parts.length === 2 && tipoPolizza === "nuovaAdesione") {
+    // Formato YYYY-MM per nuova adesione
+    return `00.${parts[1]}.${parts[0]}`;
+  }
+
+  return dataInput;
+}
+
+
+
+
+
+  // Funzione per ottenere l'orario corrente
+  function getOraCorrente() {
+    const ora = new Date();
+    return `${String(ora.getHours()).padStart(2, '0')}:${String(ora.getMinutes()).padStart(2, '0')}`;
+  }
+
+  // Funzione per convertire le date di input nel formato DD/MM/YY
+  function formattaData(dataInput) {
+    if (!dataInput) return "";
+    const parts = dataInput.split('-'); // Supponendo che l'input sia in formato YYYY-MM-DD
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0].slice(-2)}`;
+    }
+    return dataInput; // Se il formato è già corretto, restituisce invariato
+  }
+
+  // Imposta font e dimensioni
+  pdf.setFont("Helvetica", "normal");
+  pdf.setFontSize(9);
+
+  // Aggiungi logo mantenendo proporzioni
+  const logoPath = "img/s&c_LOGO_BROKER.png";
+  const originalWidth = 7250; // Larghezza originale del logo
+  const originalHeight = 1366; // Altezza originale del logo
+  const scaleFactor = 0.01; // Fattore di scala per adattare al PDF
+  const logoWidth = originalWidth * scaleFactor; // Larghezza ridimensionata
+  const logoHeight = originalHeight * scaleFactor; // Altezza ridimensionata
+
+  // Calcola posizione centrata per il logo
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const logoX = (pageWidth - logoWidth) / 2; // Centrare orizzontalmente
+  const logoY = 10; // Posizione dall'alto
+  pdf.addImage(logoPath, "PNG", logoX, logoY, logoWidth, logoHeight);
+
+  // Testo intestazione
+  pdf.text(`Milano ${getDataCorrente()}`, 10, 40);
+  pdf.text(`time: ${getOraCorrente()}`, 190, 40, null, null, "right");
+
+  // Striscia grigia sotto il titolo
+pdf.setFillColor("#D9D9D9");
+pdf.rect(10, 46, 190, 5, "F");  // Rettangolo pieno (disegnato prima)
+
+// Titolo Carico Contabile sopra la striscia
+pdf.setFont("Helvetica", "bold");
+pdf.setTextColor(0, 0, 0);  // Testo nero
+pdf.text("CARICO CONTABILE N.", 10, 50);
+pdf.setFont("Helvetica", "bold");
+const dataOggi = new Date();
+const annoShort = dataOggi.getFullYear();
+const meseShort = String(dataOggi.getMonth() + 1).padStart(2, '0'); // Mese con due cifre
+
+const numeroFormatoPDF = `${annoShort} ${meseShort}-00100-10${numCarico}`;
+
+pdf.text(numeroFormatoPDF, 90, 50);
+
+pdf.text(numCarico, 180, 50, null, null, "right");
+
+
+  // Dati contraente
+  pdf.setFont("Helvetica", "normal");
+  pdf.text("CONTRAENTE", 10, 60);
+  pdf.text(nomeSocieta, 90, 60);
+  pdf.text("INDIRIZZO", 10, 68);
+  pdf.text(indirizzoSocieta, 90, 68);
+  pdf.text("C.A.P./CITTA'", 10, 76);
+  pdf.text(`${cap} ${citta}`, 90, 76);
+  pdf.text("PROVINCIA/NAZIONE", 10, 84);
+  pdf.text(provincia, 90, 84);
+  pdf.text("C.F./P. IVA", 10, 92);
+  pdf.text(pivaSocieta, 90, 92);
+  pdf.text("RISCHIO", 10, 100);
+  pdf.text("INSOLVENZA/FALLIMENTO", 90, 100);
+  pdf.text("COD./FRAZIONAMENTO", 10, 108);
+  pdf.text("01/ANNUALE", 90, 108);
+  pdf.text("EMITTENTE", 10, 116);
+  pdf.text("FONDO CONSORTILE DI GARANZIA VACANZE GARANTITE", 90, 116);
+  pdf.text("DIPENDENZA", 10, 124);
+  pdf.text("MILANO", 90, 124);
+  pdf.text("POLIZZA", 10, 132);
+  pdf.text(tipoPolizza.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase(), 90, 132);
+  pdf.text("DECORRENZA", 10, 140);
+  pdf.text(decorrenza, 90, 140);
+  pdf.text("SCADENZA", 10, 148);
+  pdf.text(scadenza, 90, 148);
+  pdf.text("VALUTA", 10, 156);
+  pdf.text("EURO", 90, 156);
+  pdf.text("CAMBIO", 10, 164);
+
+  pdf.setFillColor("#D9D9D9");
+  pdf.rect(10, 168, 190, 5, "F"); 
+  
+  pdf.setFont("Helvetica", "bold");
+  pdf.setTextColor(0, 0, 0);  
+  pdf.text("IMPORTO", 10, 172);
+  pdf.text("EURO", 90, 172);
+  pdf.text(formattaNumeroItaliano(somma), 180, 172);
+
+  // Beneficiario
+  pdf.setFont("Helvetica", "normal");
+  pdf.text("BENEFICIARIO", 10, 180);
+  pdf.text("SPENCER & CARTER SRL", 90, 180);
+  pdf.text("PAGAMENTO", 10, 188);
+  pdf.text("BONIFICO BANCARIO", 90, 188);
+  pdf.text("VALUTA/DEL", 10, 196);
+  pdf.text("FISSA", 90, 196);
+  pdf.text("BANCA DI APPOGGIO", 10, 204);
+  pdf.text("CHIANTI BANCA", 90, 204);
+  pdf.text("IBAN", 10, 212);
+  pdf.text("IT 71 O 08673 25300 000000 541426", 90, 212);
+  pdf.text("CODICE SWIFT", 10, 220);
+  pdf.text("ICRAITRRIP0", 90, 220);
+
+  pdf.setFillColor("#D9D9D9");
+  pdf.rect(10, 232, 190, 10, "F"); 
+  
+  pdf.setFont("Helvetica", "normal");
+  pdf.setTextColor(0, 0, 0);  
+  pdf.text("IL PAGAMENTO E’ STATO EFFETTUATO - SI ALLEGA RICEVUTA", 10, 236);
+
+  // Imposta font e dimensioni per la firma
+pdf.setFont("Helvetica", "normal");
+pdf.setFontSize(9);
+
+// Nuova posizione della firma (più in alto a destra)
+const firmaY = pdf.internal.pageSize.getHeight() - 45; // Più in alto
+const firmaX = pdf.internal.pageSize.getWidth() - 60; // Più a destra
+
+// Riga della firma (centrata rispetto al nome)
+const firmaTesto = "_____________________________________";
+const firmaWidth = pdf.getTextWidth(firmaTesto);
+pdf.text(firmaTesto, firmaX - (firmaWidth / 2), firmaY + 5);
+
+// Nome società o firmatario (centrato sopra la riga della firma)
+const nomeSocietaText = nomeSocieta.toUpperCase().trim();
+const nomeWidth = pdf.getTextWidth(nomeSocietaText);
+pdf.text(nomeSocietaText, firmaX - (nomeWidth / 2), firmaY);
+
+
+  // Nota esenzione da bollo
+  pdf.setFont("Helvetica", "normal");
+  pdf.setFontSize(9);
+  pdf.text("Esente da bollo - Art. 34 DPR. 601 del 29/09/1973", 10, 265);
+
+  // FOOTER
+pdf.setFontSize(8);
+pdf.setFont("Helvetica", "normal");
+const pdfWidth = pdf.internal.pageSize.getWidth(); // Larghezza della pagina
+const footerY = pdf.internal.pageSize.getHeight() - 20; // Posizione verticale del footer
+
+// PRIMO TESTO CENTRATO
+pdf.setTextColor(31, 73, 125); // Colore #1F497D (convertito in RGB)
+const title = "Spencer & Carter S.r.l.";
+const titleWidth = pdf.getTextWidth(title);
+pdf.text(title, (pdfWidth - titleWidth) / 2, footerY);
+
+// TRE COLONNE DI TESTO
+pdf.setFontSize(7);
+pdf.setTextColor(128, 128, 128); // Colore grigio per i testi
+
+// COLONNA DI SINISTRA (allineata a sinistra)
+const leftColumn = [
+  "Tel. +39 02.8089.8817 – Fax +39 02 5656 3593",
+  "RUI B n. 000671207"
+];
+leftColumn.forEach((line, index) => {
+  pdf.text(line, 10, footerY + 5 + (index * 4));
+});
+
+// COLONNA CENTRALE (allineata al centro)
+const centerColumn = [
+  "www.spencerandcarter.com",
+  "Milano – Lucca – Londra – New York"
+];
+centerColumn.forEach((line, index) => {
+  const lineWidth = pdf.getTextWidth(line);
+  pdf.text(line, (pdfWidth - lineWidth) / 2, footerY + 5 + (index * 4));
+});
+
+// COLONNA DI DESTRA (allineata a destra)
+const rightColumn = [
+  "info@spencerandcarter.com",
+  "spencerandcarter@legalmail.it"
+];
+rightColumn.forEach((line, index) => {
+  const lineWidth = pdf.getTextWidth(line);
+  pdf.text(line, pdfWidth - 10 - lineWidth, footerY + 5 + (index * 4));
+});
+
+// AGGIUNTA DEI LINK CLICCABILI PER EMAIL E SITO
+pdf.setTextColor(0, 0, 255); // Colore blu per i link
+const email1 = "info@spencerandcarter.com";
+const email2 = "spencerandcarter@legalmail.it";
+const web = "www.spencerandcarter.com";
+
+const email1Width = pdf.getTextWidth(email1);
+const email2Width = pdf.getTextWidth(email2);
+const webWidth = pdf.getTextWidth(web);
+
+pdf.link(pdfWidth - 10 - email1Width, footerY + 5, email1Width, 4, { url: `mailto:${email1}` });
+pdf.link(pdfWidth - 10 - email2Width, footerY + 9, email2Width, 4, { url: `mailto:${email2}` });
+pdf.link((pdfWidth - webWidth) / 2, footerY + 5, webWidth, 4, { url: `https://${web}` });
+
+
+  // Salva il PDF
+  const dataCorrente = new Date();
+  const annoCorrente = dataCorrente.getFullYear(); // Anno completo
+  const meseCorrente = String(dataCorrente.getMonth() + 1).padStart(2, '0'); // Mese con due cifre
+
+  const nomeFile = `${numCarico}_${nomeSocieta}_n ${annoCorrente} ${meseCorrente}-00100-10${numCarico}_del_${getDataCorrente().replaceAll('/', '-')}.pdf`;
+    pdf.save(nomeFile);
+  }
+
+
+  function scaricaCaricoRC() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  // Recupera i dati dal form
+  const nomeSocieta = document.getElementById('nomeSocietaRC').value.toUpperCase();
+  const indirizzoSocieta = document.getElementById('indirizzoSocietaRC').value;
+  const cap = document.getElementById('capRC').value;
+  const citta = document.getElementById('cittaRC').value;
+  const provincia = document.getElementById('provinciaRC').value;
+  const pivaSocieta = document.getElementById('pivaSocietaRC').value;
+  const numCarico = document.getElementById('numCaricoRC').value;
+  const decorrenza = formattaDataItaliana(document.getElementById('decorrenzaRC').value);
+  const scadenza = formattaDataItaliana(document.getElementById('scadenzaRC').value);
+  const tipoPolizza = "RC";
+  const importoRC = parseFloat(document.getElementById('importoRC').value) || 0;
+  const somma = importoRC.toFixed(2);
+  
+  function getDataCorrente() {
+    const oggi = new Date();
+    const giorno = String(oggi.getDate()).padStart(2, '0');
+    const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+    const anno = oggi.getFullYear(); // Anno completo
+    return `${giorno}.${mese}.${anno}`;
+}
+
+// 📌 INSERISCI QUI LA FUNZIONE formattaDataItaliana()
+function formattaDataItaliana(dataInput) {
+  if (!dataInput) return "";
+  const tipoPolizza = "RC";
+
+  const parts = dataInput.split('-');
+  if (parts.length === 3) {
+    // Formato YYYY-MM-DD
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  } else if (parts.length === 2 && tipoPolizza === "nuovaAdesione") {
+    // Formato YYYY-MM per nuova adesione
+    return `00.${parts[1]}.${parts[0]}`;
+  }
+
+  return dataInput;
+}
+
+
+
+
+
+  // Funzione per ottenere l'orario corrente
+  function getOraCorrente() {
+    const ora = new Date();
+    return `${String(ora.getHours()).padStart(2, '0')}:${String(ora.getMinutes()).padStart(2, '0')}`;
+  }
+
+  // Funzione per convertire le date di input nel formato DD/MM/YY
+  function formattaData(dataInput) {
+    if (!dataInput) return "";
+    const parts = dataInput.split('-'); // Supponendo che l'input sia in formato YYYY-MM-DD
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0].slice(-2)}`;
+    }
+    return dataInput; // Se il formato è già corretto, restituisce invariato
+  }
+
+  // Imposta font e dimensioni
+  pdf.setFont("Helvetica", "normal");
+  pdf.setFontSize(9);
+
+  // Aggiungi logo mantenendo proporzioni
+  const logoPath = "img/s&c_LOGO_BROKER.png";
+  const originalWidth = 7250; // Larghezza originale del logo
+  const originalHeight = 1366; // Altezza originale del logo
+  const scaleFactor = 0.01; // Fattore di scala per adattare al PDF
+  const logoWidth = originalWidth * scaleFactor; // Larghezza ridimensionata
+  const logoHeight = originalHeight * scaleFactor; // Altezza ridimensionata
+
+  // Calcola posizione centrata per il logo
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const logoX = (pageWidth - logoWidth) / 2; // Centrare orizzontalmente
+  const logoY = 10; // Posizione dall'alto
+  pdf.addImage(logoPath, "PNG", logoX, logoY, logoWidth, logoHeight);
+
+  // Testo intestazione
+  pdf.text(`Milano ${getDataCorrente()}`, 10, 40);
+  pdf.text(`time: ${getOraCorrente()}`, 190, 40, null, null, "right");
+
+  // Striscia grigia sotto il titolo
+pdf.setFillColor("#D9D9D9");
+pdf.rect(10, 46, 190, 5, "F");  // Rettangolo pieno (disegnato prima)
+
+// Titolo Carico Contabile sopra la striscia
+pdf.setFont("Helvetica", "bold");
+pdf.setTextColor(0, 0, 0);  // Testo nero
+pdf.text("CARICO CONTABILE N.", 10, 50);
+pdf.setFont("Helvetica", "bold");
+const dataOggi = new Date();
+const annoShort = dataOggi.getFullYear();
+const meseShort = String(dataOggi.getMonth() + 1).padStart(2, '0'); // Mese con due cifre
+
+const numeroFormatoPDF = `${annoShort} ${meseShort}-00100-10${numCarico}`;
+
+pdf.text(numeroFormatoPDF, 90, 50);
+
+pdf.text(numCarico, 180, 50, null, null, "right");
+
+
+  // Dati contraente
+  pdf.setFont("Helvetica", "normal");
+  pdf.text("CONTRAENTE", 10, 60);
+  pdf.text(nomeSocieta, 90, 60);
+  pdf.text("INDIRIZZO", 10, 68);
+  pdf.text(indirizzoSocieta, 90, 68);
+  pdf.text("C.A.P./CITTA'", 10, 76);
+  pdf.text(`${cap} ${citta}`, 90, 76);
+  pdf.text("PROVINCIA/NAZIONE", 10, 84);
+  pdf.text(provincia, 90, 84);
+  pdf.text("C.F./P. IVA", 10, 92);
+  pdf.text(pivaSocieta, 90, 92);
+  pdf.text("RISCHIO", 10, 100);
+  pdf.text("RC PROFESSIONALE", 90, 100);
+  pdf.text("COD./FRAZIONAMENTO", 10, 108);
+  pdf.text("01/ANNUALE", 90, 108);
+  pdf.text("EMITTENTE", 10, 116);
+  pdf.text("ACCELERANT", 90, 116);
+  pdf.text("DIPENDENZA", 10, 124);
+  pdf.text("OMNYY", 90, 124);
+  pdf.text("POLIZZA", 10, 132);
+  pdf.text("EMITTENDA", 90, 132);
+  pdf.text("DECORRENZA", 10, 140);
+  pdf.text(decorrenza, 90, 140);
+  pdf.text("SCADENZA", 10, 148);
+  pdf.text(scadenza, 90, 148);
+  pdf.text("VALUTA", 10, 156);
+  pdf.text("EURO", 90, 156);
+  pdf.text("CAMBIO", 10, 164);
+
+  pdf.setFillColor("#D9D9D9");
+  pdf.rect(10, 168, 190, 5, "F"); 
+  
+  pdf.setFont("Helvetica", "bold");
+  pdf.setTextColor(0, 0, 0);  
+  pdf.text("IMPORTO", 10, 172);
+  pdf.text("EURO", 90, 172);
+  pdf.text(formattaNumeroItaliano(importoRC), 180, 172);
+
+  // Beneficiario
+  pdf.setFont("Helvetica", "normal");
+  pdf.text("BENEFICIARIO", 10, 180);
+  pdf.text("SPENCER & CARTER SRL", 90, 180);
+  pdf.text("PAGAMENTO", 10, 188);
+  pdf.text("BONIFICO BANCARIO", 90, 188);
+  pdf.text("VALUTA/DEL", 10, 196);
+  pdf.text("FISSA", 90, 196);
+  pdf.text("BANCA DI APPOGGIO", 10, 204);
+  pdf.text("CHIANTI BANCA", 90, 204);
+  pdf.text("IBAN", 10, 212);
+  pdf.text("IT 48 P 08673 25300 000000 541427", 90, 212);
+  pdf.text("CODICE SWIFT", 10, 220);
+  pdf.text("ICRAITRRIP0", 90, 220);
+
+  pdf.setFillColor("#D9D9D9");
+  pdf.rect(10, 232, 190, 10, "F"); 
+  
+  pdf.setFont("Helvetica", "normal");
+  pdf.setTextColor(0, 0, 0);  
+  pdf.text("IL PAGAMENTO E’ STATO EFFETTUATO - SI ALLEGA RICEVUTA", 10, 236);
+
+  // Imposta font e dimensioni per la firma
+pdf.setFont("Helvetica", "normal");
+pdf.setFontSize(9);
+
+// Nuova posizione della firma (più in alto a destra)
+const firmaY = pdf.internal.pageSize.getHeight() - 45; // Più in alto
+const firmaX = pdf.internal.pageSize.getWidth() - 60; // Più a destra
+
+// Riga della firma (centrata rispetto al nome)
+const firmaTesto = "_____________________________________";
+const firmaWidth = pdf.getTextWidth(firmaTesto);
+pdf.text(firmaTesto, firmaX - (firmaWidth / 2), firmaY + 5);
+
+// Nome società o firmatario (centrato sopra la riga della firma)
+const nomeSocietaText = nomeSocieta.toUpperCase().trim();
+const nomeWidth = pdf.getTextWidth(nomeSocietaText);
+pdf.text(nomeSocietaText, firmaX - (nomeWidth / 2), firmaY);
+
+
+  // Nota esenzione da bollo
+  pdf.setFont("Helvetica", "normal");
+  pdf.setFontSize(9);
+  pdf.text("Esente da bollo - Art. 34 DPR. 601 del 29/09/1973", 10, 265);
+
+  // FOOTER
+pdf.setFontSize(8);
+pdf.setFont("Helvetica", "normal");
+const pdfWidth = pdf.internal.pageSize.getWidth(); // Larghezza della pagina
+const footerY = pdf.internal.pageSize.getHeight() - 20; // Posizione verticale del footer
+
+// PRIMO TESTO CENTRATO
+pdf.setTextColor(31, 73, 125); // Colore #1F497D (convertito in RGB)
+const title = "Spencer & Carter S.r.l.";
+const titleWidth = pdf.getTextWidth(title);
+pdf.text(title, (pdfWidth - titleWidth) / 2, footerY);
+
+// TRE COLONNE DI TESTO
+pdf.setFontSize(7);
+pdf.setTextColor(128, 128, 128); // Colore grigio per i testi
+
+// COLONNA DI SINISTRA (allineata a sinistra)
+const leftColumn = [
+  "Tel. +39 02.8089.8817 – Fax +39 02 5656 3593",
+  "RUI B n. 000671207"
+];
+leftColumn.forEach((line, index) => {
+  pdf.text(line, 10, footerY + 5 + (index * 4));
+});
+
+// COLONNA CENTRALE (allineata al centro)
+const centerColumn = [
+  "www.spencerandcarter.com",
+  "Milano – Lucca – Londra – New York"
+];
+centerColumn.forEach((line, index) => {
+  const lineWidth = pdf.getTextWidth(line);
+  pdf.text(line, (pdfWidth - lineWidth) / 2, footerY + 5 + (index * 4));
+});
+
+// COLONNA DI DESTRA (allineata a destra)
+const rightColumn = [
+  "info@spencerandcarter.com",
+  "spencerandcarter@legalmail.it"
+];
+rightColumn.forEach((line, index) => {
+  const lineWidth = pdf.getTextWidth(line);
+  pdf.text(line, pdfWidth - 10 - lineWidth, footerY + 5 + (index * 4));
+});
+
+// AGGIUNTA DEI LINK CLICCABILI PER EMAIL E SITO
+pdf.setTextColor(0, 0, 255); // Colore blu per i link
+const email1 = "info@spencerandcarter.com";
+const email2 = "spencerandcarter@legalmail.it";
+const web = "www.spencerandcarter.com";
+
+const email1Width = pdf.getTextWidth(email1);
+const email2Width = pdf.getTextWidth(email2);
+const webWidth = pdf.getTextWidth(web);
+
+pdf.link(pdfWidth - 10 - email1Width, footerY + 5, email1Width, 4, { url: `mailto:${email1}` });
+pdf.link(pdfWidth - 10 - email2Width, footerY + 9, email2Width, 4, { url: `mailto:${email2}` });
+pdf.link((pdfWidth - webWidth) / 2, footerY + 5, webWidth, 4, { url: `https://${web}` });
+
+
+  // Salva il PDF
+  const dataCorrente = new Date();
+  const annoCorrente = dataCorrente.getFullYear(); // Anno completo
+  const meseCorrente = String(dataCorrente.getMonth() + 1).padStart(2, '0'); // Mese con due cifre
+
+  const nomeFile = `${numCarico} ${nomeSocieta} n ${annoCorrente} ${meseCorrente}-00100-10${numCarico} del ${getDataCorrente().replace(/\./g, " ")} RC.pdf`;
+    pdf.save(nomeFile);
+  }
+
+  function scaricaCertificato() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const nomeSocieta = document.getElementById('nomeSocieta').value.toUpperCase();
+  const indirizzoSocieta = document.getElementById('indirizzoSocieta').value;
+  const cap = document.getElementById('cap').value;
+  const citta = document.getElementById('citta').value;
+  const provincia = document.getElementById('provincia').value;
+  const pivaSocieta = document.getElementById('pivaSocieta').value;
+  const numCarico = document.getElementById('numCarico').value;
+  const decorrenzaRaw = new Date(document.getElementById('decorrenza').value);
+  const scadenzaRaw = new Date(document.getElementById('scadenza').value);
+
+  const oggi = new Date();
+  const giorno = String(oggi.getDate()).padStart(2, '0');
+  const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+  const anno = oggi.getFullYear();
+  const codiceCertificato = `${anno}${mese}${giorno}${numCarico}AT`;
+
+  function formattaDataCompleta(data) {
+    const mesi = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE"];
+    return `${String(data.getDate()).padStart(2, '0')} ${mesi[data.getMonth()]} ${data.getFullYear()}`;
+  }
+
+  const decorrenza = formattaDataCompleta(decorrenzaRaw);
+  const scadenza = formattaDataCompleta(scadenzaRaw);
+  const dataEmissione = formattaDataCompleta(oggi);
+
+ // Aggiunta logo
+ const logoPath = "img/logodelibera.jpg";
+    const logoWidth = 60; // Larghezza del logo
+    const logoHeight = 20; // Altezza del logo
+    const logoX = (pdf.internal.pageSize.getWidth() - logoWidth) / 2; // Centrare il logo orizzontalmente
+    const logoY = 8; // Distanza dalla parte superiore
+    pdf.addImage(logoPath, "JPEG", logoX, logoY, logoWidth, logoHeight);
+
+    pdf.setFontSize(16);
+    pdf.setFont("Helvetica", "bold");
+    const title = "FONDO CONSORTILE DI GARANZIA";
+    const pageWidth = pdf.internal.pageSize.getWidth(); // Larghezza della pagina
+    const textWidth = pdf.getTextWidth(title); // Larghezza del testo
+    const centerX = (pageWidth - textWidth) / 2; // Calcolo della posizione centrata
+
+    pdf.text(title, centerX, 40);
+
+  pdf.setFont("Helvetica", "bold");
+  pdf.setFontSize(10);
+  pdf.text(`CERTIFICATO N. ${codiceCertificato}`, 20, 55);
+
+  pdf.setFont("Helvetica", "normal");
+  pdf.setFontSize(10);
+  const lines = [
+    `Il presente certificato attesta che ${nomeSocieta}`,
+    `Sede Legale in ${indirizzoSocieta} – ${cap} ${citta}`,
+    `Partita IVA ${pivaSocieta}`,
+    `ADERISCE`,
+    `Al Fondo di Garanzia consortile VACANZE GARANTITE® costituito dal consorzio interno VACANZE GARANTITE® sulla base di quanto stabilito D.Lgs. n. 62 del 21 maggio 2018 – Sezione V - Protezione in caso di insolvenza o fallimento – Art. 47 comma 3.`
+  ];
+
+  pdf.setFont("Helvetica", "normal");
+  let y = 58;
+  lines.forEach(l => {
+    pdf.text(l, 20, y);
+    y += 7;
+  });
+
+  pdf.text("Decorrenza", 20, y + 5);
+  pdf.text(decorrenza, 60, y + 5);
+  pdf.text("Scadenza", 20, y + 13);
+  pdf.text(scadenza, 60, y + 13);
+
+  y += 25;
+  const corpoTesto = `Il Fondo Consortile VACANZE GARANTITE® dichiara che il presente documento è rilasciato sulla base di quanto disposto dal DECRETO LEGISLATIVO 21 maggio 2018, n. 62 - Attuazione della direttiva (UE) 2015/2302 del Parlamento europeo e del Consiglio, del 25 novembre 2015, relativa ai pacchetti turistici e ai servizi turistici collegati... (testo completo come da modello)`;
+  pdf.text(corpoTesto, 20, y, { maxWidth: 170, align: "justify" });
+
+  y = 250;
+  pdf.text(`Milano, ${dataEmissione}`, 20, y);
+
+  pdf.setFont("Helvetica", "bold");
+  pdf.text("Fondo consortile VACANZE GARANTITE®", 120, y);
+
+  pdf.text("Il Vice Presidente", 120, y + 10);
+  pdf.text("Sandra Bianchini", 120, y + 20);
+
+  pdf.setFontSize(7);
+  pdf.setFont("Helvetica", "normal");
+  pdf.text("info@vacanzegarantite.it - www.vacanzegarantite.it", 105, 285, null, null, "center");
+
+  const nomeFile = `CERTIFICATO ${codiceCertificato} ${nomeSocieta} del ${giorno} ${mese} ${anno}.pdf`;
+  pdf.save(nomeFile);
+}
+
+
+    function convertiInParole(numero) {
+  const numeriUnita = [
+    "zero", "uno", "due", "tre", "quattro", "cinque", "sei", "sette", "otto", "nove"
+  ];
+  const numeriDieci = [
+    "dieci", "undici", "dodici", "tredici", "quattordici", "quindici", "sedici", "diciassette", "diciotto", "diciannove"
+  ];
+  const decine = [
+    "", "", "venti", "trenta", "quaranta", "cinquanta", "sessanta", "settanta", "ottanta", "novanta"
+  ];
+
+  function numToWords(n) {
+    if (n < 10) return numeriUnita[n];
+    if (n < 20) return numeriDieci[n - 10];
+    if (n < 100) {
+      let parola = decine[Math.floor(n / 10)];
+      if (n % 10 === 1 || n % 10 === 8) parola = parola.slice(0, -1); // Elisione per "uno" e "otto"
+      return parola + (n % 10 !== 0 ? numeriUnita[n % 10] : "");
+    }
+    if (n < 1000) {
+      if (n === 100) return "cento";
+      let parola = "cento";
+      if (Math.floor((n % 100) / 10) === 8) parola = "cent"; // Elisione per "ottanta"
+      return numeriUnita[Math.floor(n / 100)] + parola + (n % 100 !== 0 ? numToWords(n % 100) : "");
+    }
+    if (n < 1000000) {
+      const migliaia = Math.floor(n / 1000);
+      const resto = n % 1000;
+      const parolaMigliaia = migliaia === 1 ? "mille" : numToWords(migliaia) + "mila";
+      return parolaMigliaia + (resto !== 0 ? numToWords(resto) : "");
+    }
+    if (n < 1000000000) {
+      const milioni = Math.floor(n / 1000000);
+      const resto = n % 1000000;
+      const parolaMilioni = milioni === 1 ? "unmilione" : numToWords(milioni) + "milioni";
+      return parolaMilioni + (resto !== 0 ? numToWords(resto) : "");
+    }
+    return "numero troppo grande";
+  }
+
+  const parteIntera = Math.floor(numero);
+  const parteDecimale = Math.round((numero - parteIntera) * 100);
+
+  let risultato = numToWords(parteIntera);
+
+  if (parteDecimale > 0) {
+    risultato += `/${numToWords(parteDecimale)}`;
+  } else {
+    risultato += "/00"; // Aggiungi /00 se non ci sono decimali
+  }
+  return risultato;
+}
+
+function toggleDecorrenza() {
+    var tipoPolizza = document.getElementById('tipoPolizza').value;
+    var inputDecorrenza = document.getElementById('decorrenza');
+
+    if (tipoPolizza === 'nuovaAdesione') {
+        // Imposta l'input di tipo testo e modifica il formato per accettare solo mese e anno
+        inputDecorrenza.type = 'month';
+    } else {
+        // Reimposta l'input al tipo date
+        inputDecorrenza.type = 'date';
+    }
+}
+
+  </script>
+</body>
+</html>
