@@ -1180,15 +1180,16 @@ pdf.link((pdfWidth - webWidth) / 2, footerY + 5, webWidth, 4, { url: `https://${
 }
 
 function toggleDecorrenza() {
-    var tipoPolizza = document.getElementById('tipoPolizza').value;
-    var inputDecorrenza = document.getElementById('decorrenza');
+    const tipoPolizza = document.getElementById('tipoPolizza').value;
+    const inputDecorrenza = document.getElementById('decorrenza');
+    const inputScadenza = document.getElementById('scadenza');
 
     if (tipoPolizza === 'nuovaAdesione') {
-        // Imposta l'input di tipo testo e modifica il formato per accettare solo mese e anno
         inputDecorrenza.type = 'month';
+        inputScadenza.type = 'month';
     } else {
-        // Reimposta l'input al tipo date
         inputDecorrenza.type = 'date';
+        inputScadenza.type = 'date';
     }
 }
 
