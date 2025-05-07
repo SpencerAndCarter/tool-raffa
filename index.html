@@ -212,6 +212,55 @@
   
   </div>
 
+  <!--FORM CERTIFICATO-->
+  <div id="formCertificato" style="display: none;">
+    <form id="certificatoForm" class="form">
+  
+      <div class="input-box">
+        <label for="numeroCertificato">Numero certificato</label>
+        <input type="text" id="numeroCertificato" name="numeroCertificato" required>
+      </div>
+
+      <div class="input-box">
+        <label for="nomeSocietaCertificato">Nome Società:</label>
+        <input type="text" id="nomeSocietaCertificato" name="nomeSocietaCertificato" required>
+      </div>
+  
+      <div class="input-box">
+        <label for="indirizzoLegaleCertificato">Sede Legale:</label>
+        <input type="text" id="indirizzoLegaleCertificato" name="indirizzoLegaleCertificato" required>
+      </div>
+  
+      <div class="input-box">
+        <label for="indirizzoOperativaCertificato">Sede Operativa:</label>
+        <input type="text" id="indirizzoOperativaCertificato" name="indirizzoOperativaCertificato" required>
+      </div>
+  
+      <div class="input-box">
+        <label for="pivaSocietaCertificato">Partita IVA:</label>
+        <input type="text" id="pivaSocietaCertificato" name="pivaSocietaCertificato" required>
+      </div>
+  
+      <div class="input-box">
+        <label for="marchioCommercialeCertificato">Marchio Commerciale:</label>
+        <input type="text" id="marchioCommercialeCertificato" name="marchioCommercialeCertificato" required>
+      </div>
+  
+      <div class="input-box">
+        <label for="decorrenzaCertificato">Data Decorrenza:</label>
+        <input type="date" id="decorrenzaCertificato" name="decorrenzaCertificato" required>
+      </div>
+  
+      <div class="input-box">
+        <label for="scadenzaCertificato">Data Scadenza:</label>
+        <input type="date" id="scadenzaCertificato" name="scadenzaCertificato" required>
+      </div>
+  
+      <button type="button" class="form-button" onclick="scaricaCertificato()">Scarica Certificato</button>
+  
+    </form>
+  </div>
+  
   
 
   <button id="btnTorna" class="form-button" style="display:none;" onclick="tornaAllaScelta()">← Torna alla scelta iniziale</button>
@@ -1036,94 +1085,214 @@ pdf.link((pdfWidth - webWidth) / 2, footerY + 5, webWidth, 4, { url: `https://${
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "mm", "a4");
 
-  const nomeSocieta = document.getElementById('nomeSocieta').value.toUpperCase();
-  const indirizzoSocieta = document.getElementById('indirizzoSocieta').value;
-  const cap = document.getElementById('cap').value;
-  const citta = document.getElementById('citta').value;
-  const provincia = document.getElementById('provincia').value;
-  const pivaSocieta = document.getElementById('pivaSocieta').value;
-  const numCarico = document.getElementById('numCarico').value;
-  const decorrenzaRaw = new Date(document.getElementById('decorrenza').value);
-  const scadenzaRaw = new Date(document.getElementById('scadenza').value);
+  // Dati dal form
+  const nomeSocieta = document.getElementById("nomeSocietaCertificato").value.toUpperCase();
+  const indirizzoLegale = document.getElementById("indirizzoLegaleCertificato").value;
+  const indirizzoOperativa = document.getElementById("indirizzoOperativaCertificato").value;
+  const piva = document.getElementById("pivaSocietaCertificato").value;
+  const marchio = document.getElementById("marchioCommercialeCertificato").value;
+  const decorrenzaInput = document.getElementById("decorrenzaCertificato").value;
+  const scadenzaInput = document.getElementById("scadenzaCertificato").value;
 
-  const oggi = new Date();
-  const giorno = String(oggi.getDate()).padStart(2, '0');
-  const mese = String(oggi.getMonth() + 1).padStart(2, '0');
-  const anno = oggi.getFullYear();
-  const codiceCertificato = `${anno}${mese}${giorno}${numCarico}AT`;
-
-  function formattaDataCompleta(data) {
-    const mesi = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE"];
-    return `${String(data.getDate()).padStart(2, '0')} ${mesi[data.getMonth()]} ${data.getFullYear()}`;
-  }
-
-  const decorrenza = formattaDataCompleta(decorrenzaRaw);
-  const scadenza = formattaDataCompleta(scadenzaRaw);
-  const dataEmissione = formattaDataCompleta(oggi);
-
- // Aggiunta logo
- const logoPath = "img/logodelibera.jpg";
+  // Aggiunta logo
+  const logoPath = "img/logodelibera.jpg";
     const logoWidth = 60; // Larghezza del logo
     const logoHeight = 20; // Altezza del logo
     const logoX = (pdf.internal.pageSize.getWidth() - logoWidth) / 2; // Centrare il logo orizzontalmente
     const logoY = 8; // Distanza dalla parte superiore
     pdf.addImage(logoPath, "JPEG", logoX, logoY, logoWidth, logoHeight);
 
-    pdf.setFontSize(16);
-    pdf.setFont("Helvetica", "bold");
-    const title = "FONDO CONSORTILE DI GARANZIA";
-    const pageWidth = pdf.internal.pageSize.getWidth(); // Larghezza della pagina
-    const textWidth = pdf.getTextWidth(title); // Larghezza del testo
-    const centerX = (pageWidth - textWidth) / 2; // Calcolo della posizione centrata
+  // Data corrente
+  const oggi = new Date();
+  const giorno = String(oggi.getDate()).padStart(2, '0');
+  const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+  const anno = oggi.getFullYear();
+  const numeroCertificato = document.getElementById("numeroCertificato").value.padStart(4, '0');
+  const codiceCertificato = `${anno}${mese}${numeroCertificato}AT`;
 
-    pdf.text(title, centerX, 40);
 
+  const mesi = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE"];
+
+  function formattaData(dataStr) {
+    if (!dataStr) return "";
+    const d = new Date(dataStr);
+    return `${String(d.getDate()).padStart(2, '0')} ${mesi[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  const decorrenza = formattaData(decorrenzaInput);
+  const scadenza = formattaData(scadenzaInput);
+  const dataEmissione = formattaData(oggi);
+
+  // TITOLO CENTRALE
   pdf.setFont("Helvetica", "bold");
-  pdf.setFontSize(10);
-  pdf.text(`CERTIFICATO N. ${codiceCertificato}`, 20, 55);
+  pdf.setFontSize(16);
+  pdf.text("FONDO CONSORTILE DI GARANZIA", 105, 40, null, null, "center");
+
+  // Certificato N
+  pdf.setFontSize(11);
+  pdf.text(`CERTIFICATO N. ${codiceCertificato}`, 15, 55);
+
+  // Corpo testo principale
+  pdf.setFont("Helvetica", "normal");
+  pdf.setFontSize(11);
+  let y = 65;
+  pdf.text(`Il presente certificato attesta che ${nomeSocieta}`, 15, y);
+  y += 4;
+  pdf.text(`Sede Legale in ${indirizzoLegale}`, 15, y);
+  y += 4;
+  pdf.text(`Sede Operativa in ${indirizzoOperativa}`, 15, y);
+  y += 4;
+  pdf.text(`Partita IVA ${piva}`, 15, y);
+  y += 4;
+  pdf.text(`Marchio commerciale ${marchio}`, 15, y);
+
+  y += 7;
+  pdf.setFont("Helvetica", "normal");
+  pdf.setFontSize(11);
+  pdf.text("ADERISCE", 105, y, null, null, "center"); // centrato
+
+  y += 7;
+  pdf.setFont("Helvetica", "normal");
+  const blocco = "Al Fondo di Garanzia consortile VACANZE GARANTITE® costituito dal consorzio interno VACANZE GARANTITE® sulla base di quanto stabilito D.Lgs. n. 62 del 21 maggio 2018 – Sezione V - Protezione in caso di insolvenza o fallimento – Art. 47 comma 3.";
+pdf.text(blocco, 15, y, { maxWidth: 180, align: "justify" });
+
+y += 15; // Avanza alla prossima sezione
+
+  y += 12;
+  // Decorrenza e Scadenza in colonna
+  pdf.setFont("Helvetica", "normal");
+  pdf.text("Decorrenza", 15, y);
+  pdf.text("Scadenza", 150, y);
+
+  y += 5;
+  pdf.setFont("Helvetica", "normal");
+  pdf.text(decorrenza, 15, y);
+  pdf.text(scadenza, 150, y);
+
+  y += 15;
 
   pdf.setFont("Helvetica", "normal");
-  pdf.setFontSize(10);
-  const lines = [
-    `Il presente certificato attesta che ${nomeSocieta}`,
-    `Sede Legale in ${indirizzoSocieta} – ${cap} ${citta}`,
-    `Partita IVA ${pivaSocieta}`,
-    `ADERISCE`,
-    `Al Fondo di Garanzia consortile VACANZE GARANTITE® costituito dal consorzio interno VACANZE GARANTITE® sulla base di quanto stabilito D.Lgs. n. 62 del 21 maggio 2018 – Sezione V - Protezione in caso di insolvenza o fallimento – Art. 47 comma 3.`
-  ];
+pdf.setFontSize(11);
 
-  pdf.setFont("Helvetica", "normal");
-  let y = 58;
-  lines.forEach(l => {
-    pdf.text(l, 20, y);
-    y += 7;
-  });
+// Paragrafo 1
+const par1 = "Il Fondo Consortile VACANZE GARANTITE® dichiara che il presente documento è rilasciato sulla base di quanto disposto dal DECRETO LEGISLATIVO 21 maggio 2018, n. 62 - Attuazione della direttiva (UE) 2015/2302 del Parlamento europeo e del Consiglio, del 25 novembre 2015, relativa ai pacchetti turistici e ai servizi turistici collegati, che modifica il regolamento (CE) n. 2006/2004 e la direttiva 2011/83/UE del Parlamento europeo e del Consiglio e che abroga la direttiva 90/314/CEE del Consiglio. – Sezione V – Protezione in caso di insolvenza o fallimento - Art. 47 comma 3.";
+pdf.text(par1, 15, y, { maxWidth: 180, align: "justify" });
+y += 33;
 
-  pdf.text("Decorrenza", 20, y + 5);
-  pdf.text(decorrenza, 60, y + 5);
-  pdf.text("Scadenza", 20, y + 13);
-  pdf.text(scadenza, 60, y + 13);
+// Paragrafo 2
+const par2 = "Il Consorzio interno oggetto della dichiarazione ha sottoposto a controllo le sue attività e soddisfa i requisiti previsti dalle Leggi citate.";
+pdf.text(par2, 15, y, { maxWidth: 180, align: "justify" });
+y += 15;
 
-  y += 25;
-  const corpoTesto = `Il Fondo Consortile VACANZE GARANTITE® dichiara che il presente documento è rilasciato sulla base di quanto disposto dal DECRETO LEGISLATIVO 21 maggio 2018, n. 62 - Attuazione della direttiva (UE) 2015/2302 del Parlamento europeo e del Consiglio, del 25 novembre 2015, relativa ai pacchetti turistici e ai servizi turistici collegati... (testo completo come da modello)`;
-  pdf.text(corpoTesto, 20, y, { maxWidth: 170, align: "justify" });
+// Parte 1: testo giustificato fino a "pubblicato sul sito internet"
+// Paragrafo con link integrato e giustificato in una riga unica (se possibile)
+const fullText = "L’attestazione resta valida finché la Società garantita rispetta le normative e quanto prescritto dalle Leggi italiane e dal Regolamento del Consorzio Interno VACANZE GARANTITE® pubblicato sul sito internet www.vacanzegarantite.it e il cui contenuto deve intendersi qui integralmente richiamato.";
 
-  y = 250;
-  pdf.text(`Milano, ${dataEmissione}`, 20, y);
+// Spezza il testo in righe per larghezza massima, lasciando spazio sufficiente per la giustificazione
+const righe = pdf.splitTextToSize(fullText, 180);
 
-  pdf.setFont("Helvetica", "bold");
-  pdf.text("Fondo consortile VACANZE GARANTITE®", 120, y);
+righe.forEach((riga, idx) => {
+  // Colora il link solo se è nella riga corrente
+  if (riga.includes("www.vacanzegarantite.it")) {
+    const parts = riga.split("www.vacanzegarantite.it");
+    let x = 15;
 
-  pdf.text("Il Vice Presidente", 120, y + 10);
-  pdf.text("Sandra Bianchini", 120, y + 20);
+    // Parte prima del link
+    pdf.setTextColor(0, 0, 0);
+    pdf.text(parts[0], x, y, { align: "justify", maxWidth: 180 });
+    x += pdf.getTextWidth(parts[0]);
 
-  pdf.setFontSize(7);
-  pdf.setFont("Helvetica", "normal");
-  pdf.text("info@vacanzegarantite.it - www.vacanzegarantite.it", 105, 285, null, null, "center");
+    // Link blu
+    pdf.setTextColor(0, 0, 255);
+    pdf.text("www.vacanzegarantite.it", x, y);
+    x += pdf.getTextWidth("www.vacanzegarantite.it");
 
-  const nomeFile = `CERTIFICATO ${codiceCertificato} ${nomeSocieta} del ${giorno} ${mese} ${anno}.pdf`;
+    // Parte dopo il link
+    pdf.setTextColor(0, 0, 0);
+    if (parts[1].trim()) {
+      pdf.text(parts[1], x, y);
+    }
+  } else {
+    // Riga normale
+    pdf.setTextColor(0, 0, 0);
+    pdf.text(riga, 15, y, { align: "justify", maxWidth: 180 });
+  }
+  y += 5;
+});
+
+y+=5;
+
+
+
+
+
+
+
+
+
+
+
+// Paragrafo 4
+const par4 = "La documentazione relativa alla presente attestazione è conservata presso gli uffici del Consorzio interno VACANZE GARANTITE®.";
+pdf.text(par4, 15, y, { maxWidth: 180, align: "justify" });
+y += 20;
+
+// Firma
+pdf.setFont("Helvetica", "normal");
+pdf.text(`Milano, ${dataEmissione}`, 15, y);
+pdf.setFont("Helvetica", "normal");
+pdf.text("Fondo consortile VACANZE GARANTITE®", 140, y, null, null, "center");
+
+y += 5;
+pdf.text("Il Vice Presidente", 140, y, null, null, "center");
+y += 5;
+pdf.text("Sandra Bianchini", 140, y, null, null, "center");
+
+// Spazio sotto la firma
+y += 18;
+
+// Footer disclaimer giustificato
+const disclaimer = "Nel rispetto delle modalità di ammissione alla garanzia prestata dal Fondo Consortile VACANZE GARANTITE e della forma di contribuzione prescelta, la garanzia rilasciata a favore dei Viaggiatori/Turisti opera fino alla scadenza del presente certificato.";
+
+pdf.setFontSize(8);
+pdf.setFont("Helvetica", "normal");
+
+const maxTextWidth = pdf.internal.pageSize.getWidth() - 30; // 15mm margini
+const righeDisclaimer = pdf.splitTextToSize(disclaimer, maxTextWidth);
+righeDisclaimer.forEach(riga => {
+  pdf.text(riga, 15, y, { maxWidth: maxTextWidth, align: "justify" });
+  y += 4.5;
+});
+
+
+
+// Footer finale
+y = 285;
+pdf.setFont("Helvetica", "bold");
+pdf.setFontSize(8);
+pdf.setTextColor(128, 128, 128); // grigio
+pdf.text("Consorzio Vacanze Garantite", 105, y, null, null, "center");
+
+y += 4;
+pdf.setFont("Helvetica", "normal");
+pdf.setFontSize(8);
+pdf.text("Via Enrico Cosenz 54/B – 20158 Milano - P.Iva 11619990960", 105, y, null, null, "center");
+
+y += 4;
+pdf.setTextColor(0, 0, 255); // blu per i link
+pdf.text("info@vacanzegarantite.it - www.vacanzegarantite.it", 105, y, null, null, "center");
+
+// Ripristina colore nero se necessario dopo
+pdf.setTextColor(0, 0, 0);
+
+
+  // Salvataggio
+  const dataEmissioneNome = `${giorno} ${mese} ${anno}`;
+  const nomeFile = `N ${codiceCertificato} ${nomeSocieta} del ${dataEmissioneNome}.pdf`;
+
   pdf.save(nomeFile);
 }
+
 
 
     function convertiInParole(numero) {
