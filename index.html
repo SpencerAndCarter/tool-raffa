@@ -225,25 +225,48 @@
         <label for="nomeSocietaCertificato">Nome Società:</label>
         <input type="text" id="nomeSocietaCertificato" name="nomeSocietaCertificato" required>
       </div>
-  
+
       <div class="input-box">
-        <label for="indirizzoLegaleCertificato">Sede Legale:</label>
-        <input type="text" id="indirizzoLegaleCertificato" name="indirizzoLegaleCertificato" required>
+        <label for="marchioCommercialeCertificato">Marchio Commerciale:</label>
+        <input type="text" id="marchioCommercialeCertificato" name="marchioCommercialeCertificato" required>
       </div>
-  
-      <div class="input-box">
-        <label for="indirizzoOperativaCertificato">Sede Operativa:</label>
-        <input type="text" id="indirizzoOperativaCertificato" name="indirizzoOperativaCertificato" required>
-      </div>
-  
+
       <div class="input-box">
         <label for="pivaSocietaCertificato">Partita IVA:</label>
         <input type="text" id="pivaSocietaCertificato" name="pivaSocietaCertificato" required>
       </div>
   
+      <!-- Riga 1: CAP, Città, Provincia -->
+      <div class="input-box" style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+          <label for="capLegale">CAP</label>
+          <input type="text" id="capLegale" />
+        </div>
+        <div style="flex: 2;">
+          <label for="cittaLegale">Città</label>
+          <input type="text" id="cittaLegale" />
+        </div>
+        <div style="flex: 1;">
+          <label for="provinciaLegale">Provincia</label>
+          <input type="text" id="provinciaLegale" />
+        </div>
+      </div>
+
+      <!-- Riga 2: Indirizzo, Numero -->
+      <div class="input-box" style="display: flex; gap: 10px;">
+        <div style="flex: 4;">
+          <label for="viaLegale">Indirizzo</label>
+          <input type="text" id="viaLegale" />
+        </div>
+        <div style="flex: 1;">
+          <label for="numeroLegale">N.</label>
+          <input type="text" id="numeroLegale" />
+        </div>
+      </div>
+  
       <div class="input-box">
-        <label for="marchioCommercialeCertificato">Marchio Commerciale:</label>
-        <input type="text" id="marchioCommercialeCertificato" name="marchioCommercialeCertificato" required>
+        <label for="indirizzoOperativaCertificato">Sede Operativa:</label>
+        <input type="text" id="indirizzoOperativaCertificato" name="indirizzoOperativaCertificato">
       </div>
   
       <div class="input-box">
@@ -1087,7 +1110,14 @@ pdf.link((pdfWidth - webWidth) / 2, footerY + 5, webWidth, 4, { url: `https://${
 
   // Dati dal form
   const nomeSocieta = document.getElementById("nomeSocietaCertificato").value.toUpperCase();
-  const indirizzoLegale = document.getElementById("indirizzoLegaleCertificato").value;
+  const capLegale = document.getElementById("capLegale").value;
+  const cittaLegale = document.getElementById("cittaLegale").value;
+  const provinciaLegale = document.getElementById("provinciaLegale").value;
+  const viaLegale = document.getElementById("viaLegale").value;
+  const numeroLegale = document.getElementById("numeroLegale").value;
+
+  const indirizzoLegale = `${viaLegale} ${numeroLegale}, ${capLegale} ${cittaLegale} (${provinciaLegale})`;
+
   const indirizzoOperativa = document.getElementById("indirizzoOperativaCertificato").value;
   const piva = document.getElementById("pivaSocietaCertificato").value;
   const marchio = document.getElementById("marchioCommercialeCertificato").value;
@@ -1140,8 +1170,11 @@ pdf.link((pdfWidth - webWidth) / 2, footerY + 5, webWidth, 4, { url: `https://${
   y += 4;
   pdf.text(`Sede Legale in ${indirizzoLegale}`, 15, y);
   y += 4;
+  if (indirizzoOperativa.trim() !== "") {
   pdf.text(`Sede Operativa in ${indirizzoOperativa}`, 15, y);
   y += 4;
+  }
+
   pdf.text(`Partita IVA ${piva}`, 15, y);
   y += 4;
   pdf.text(`Marchio commerciale ${marchio}`, 15, y);
